@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-using the aggregate function to project all documents and calculate the 
+using the aggregate function to project all documents and calculate the
 average score of all documents and store it in a new key average score
 also using the name of the collection to reference the items within it
 topic.score
