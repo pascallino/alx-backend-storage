@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ Create a Cache class. In the __init__ method, store an
 instance of the Redis client as a private variable """
+
 import redis
 import uuid
 from typing import Union, Callable, Optional
@@ -8,18 +9,19 @@ from functools import wraps
 
 
 def count_calls(method: Callable) -> Callable:
-    '''count how many times methods of Cache class are called'''
+    """count how many times methods of Cache class are called"""
     key = method.__qualname__
     @wraps(method)
     def wrapper(self, *args, **kwargs):
-        '''wrap the decorated function and return the wrapper'''
+        """wrap the decorated function and return the wrapper"""
         self._redis.incr(key)
         return method(self, *args, **kwargs)
     return wrapper
 
 
 def call_history(method: Callable) -> Callable:
-    '''store the history of inputs and outputs for a particular function'''
+    """store the history of inputs and outputs for
+    a particular function"""
     @wraps(method)
     def wrapper(self, *args, **kwargs):
         '''wrap the decorated function and return the wrapper'''
@@ -40,26 +42,21 @@ def replay(fn: Callable):
         value = int(value.decode("utf-8"))
     except Exception:
         value = 0
-
     # print(f"{function_name} was called {value} times")
     print("{} was called {} times:".format(function_name, value))
     # inputs = r.lrange(f"{function_name}:inputs", 0, -1)
     inputs = r.lrange("{}:inputs".format(function_name), 0, -1)
-
     # outputs = r.lrange(f"{function_name}:outputs", 0, -1)
     outputs = r.lrange("{}:outputs".format(function_name), 0, -1)
-
     for input, output in zip(inputs, outputs):
         try:
             input = input.decode("utf-8")
         except Exception:
             input = ""
-
         try:
             output = output.decode("utf-8")
         except Exception:
             output = ""
-
         # print(f"{function_name}(*{input}) -> {output}")
         print("{}(*{}) -> {}".format(function_name, input, output))
 
