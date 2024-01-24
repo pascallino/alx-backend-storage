@@ -3,7 +3,8 @@
 instance of the Redis client as a private variable """
 import redis
 import uuid
-from typing import Union
+from typing import Union, Callable, Optional
+
 
 class Cache:
     """ class cache to cache data into redis"""
@@ -13,8 +14,25 @@ class Cache:
         self._redis.flushdb()
 
     def store(self, data: Union[str, bytes, int, float]) -> str:
-        """ Create a store method that takes a data argument and returns a string.
-        The method should generate a random key (e.g. using uuid),"""
+        """ Create a store method that
+        takes a data argument and returns a string.
+        The method should generate
+        a random key (e.g. using uuid),"""
         key = str(uuid.uuid4())
         self._redis.set(key, data)
         return key
+
+    def get(self, key: str, fn: Callable = None) \
+            -> Union[str, bytes, int, float, None]:
+        data = self._redis.get(key)
+        if data is not None and fn is not None:
+            return fn(data)
+        return data
+
+    def get_str(self, key: str) -> Union[str, None]:
+        """ converts string to utf-8"""
+        return self.get(key, fn=lambda d: d.decode("utf-8"))
+
+    def get_int(self, key: str) -> Union[int, None]:
+        """ converts the value to int"""
+        return self.get(key, fn=int)
