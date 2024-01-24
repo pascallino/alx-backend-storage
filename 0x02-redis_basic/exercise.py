@@ -10,7 +10,6 @@ from functools import wraps
 def count_calls(method: Callable) -> Callable:
     '''count how many times methods of Cache class are called'''
     key = method.__qualname__
-
     @wraps(method)
     def wrapper(self, *args, **kwargs):
         '''wrap the decorated function and return the wrapper'''
@@ -33,7 +32,7 @@ def call_history(method: Callable) -> Callable:
 
 
 def replay(fn: Callable):
-    '''display the history of calls of a particular function.'''
+    """display the history of calls of a particular function."""
     r = redis.Redis()
     func_name = fn.__qualname__
     c = r.get(func_name)
